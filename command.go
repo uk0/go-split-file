@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"math"
 	"os"
+	"qiniupkg.com/x/log.v7"
 	"strconv"
 	"strings"
 )
@@ -15,10 +16,18 @@ import (
 func SplitFileByLine(file string, lines int) {
 	var fileNmae = file;
 	var path = "./";
+	var suff  = "";
+	var name string;
+	if(strings.Index(fileNmae,".")!=-1){
+		var strs = strings.Split(fileNmae,".")
+		 suff = "."+strs[1];
+		 name = strs[0];
+	}else {
+		suff  = "";
+		name = fileNmae;
+	}
 
-	var strs = strings.Split(fileNmae,".")
-	var suff = strs[1];
-	var name = strs[0];
+
 	//lins, err := countFileLine(path + fileNmae)
 	//if err != nil {
 	//	fmt.Println("Error")
@@ -40,21 +49,23 @@ func SplitFileByLine(file string, lines int) {
 		}
 		// 获取头部 第一次
 		if (count == 0) && (num == 0) {
-			header := string(a);
-			appendToFile(path+strconv.Itoa(num)+"_"+name+"_part."+suff, header);
+			header = string(a);
+			appendToFile(path+strconv.Itoa(num)+"_"+name+"_part"+suff, header);
 			count ++;
 			continue
 		}
 		// 第二次
 		if (count == 0) {
-			appendToFile(path+strconv.Itoa(num)+"_"+name+"_part."+suff, header);
+			log.Println("header : ",header)
+			log.Println("Num : ",num)
+			appendToFile(path+strconv.Itoa(num)+"_"+name+"_part"+suff, header);
 			count ++;
 			continue
 		}
 
 		if (count < lines) {
 			// 19
-			appendToFile(path+strconv.Itoa(num)+"_"+name+"_part."+suff,  string(a));
+			go appendToFile(path+strconv.Itoa(num)+"_"+name+"_part"+suff,  string(a));
 			count ++;
 		} else {
 			num++;
@@ -80,6 +91,10 @@ func appendToFile(fileName string, content string) error {
 	return err
 }
 
+func appendFile(path string,b []byte)  {
+	ioutil.WriteFile(path,b,0666)
+}
+
 func ConvertToString(src string, srcCode string, tagCode string) string {
 	srcCoder := mahonia.NewDecoder(srcCode)
 	srcResult := srcCoder.ConvertString(src)
@@ -90,9 +105,16 @@ func ConvertToString(src string, srcCode string, tagCode string) string {
 }
 
 func SplitFileByBuffer(file string, chunkSize int64) {
-	var strs = strings.Split(file,".")
-	var suff = strs[1];
-	var name = strs[0];
+	var suff  = "";
+	var name string;
+	if(strings.Index(file,".")!=-1){
+		var strs = strings.Split(file,".")
+		suff = "."+strs[1];
+		name = strs[0];
+	}else {
+		suff  = "";
+		name = file;
+	}
 	fileInfo, err := os.Stat(file)
 	if err != nil {
 		fmt.Println(err)
@@ -117,7 +139,7 @@ func SplitFileByBuffer(file string, chunkSize int64) {
 
 		fi.Read(b)
 
-		f, err := os.OpenFile("./"+strconv.Itoa(int(i))+"_"+name+"_MB_part."+suff, os.O_CREATE|os.O_WRONLY, os.ModePerm)
+		f, err := os.OpenFile("./"+strconv.Itoa(int(i))+"_"+name+"_MB_part"+suff, os.O_CREATE|os.O_WRONLY, os.ModePerm)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -132,7 +154,7 @@ func SplitFileByBuffer(file string, chunkSize int64) {
 		return
 	}
 	for i := 1; i <= num; i++ {
-		f, err := os.OpenFile("./"+strconv.Itoa(int(i))+"_"+name+"_MB_part."+suff, os.O_RDONLY, os.ModePerm)
+		f, err := os.OpenFile("./"+strconv.Itoa(int(i))+"_"+name+"_MB_part"+suff, os.O_RDONLY, os.ModePerm)
 		if err != nil {
 			fmt.Println(err)
 			return
