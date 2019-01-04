@@ -5,16 +5,14 @@ import (
 	"github.com/urfave/cli"
 	"io/ioutil"
 	"os"
-	"strings"
 )
-
-var VERSION = 1;
 
 func main() {
 	app := cli.NewApp()
 	app.Name = "split"
 	app.Usage = "file split"
 	app.Author = "Zhang Jian Xin"
+	app.Version = "v0.1";
 
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
@@ -44,7 +42,7 @@ func main() {
 			return nil
 		}
 		if file != ""&& bufer!=0 {
-			const  int64 = 1 << 20
+			const  int64 = 1 << 20 // 1mb
 			SplitFileByBuffer(file, int64*bufer)
 			return nil
 		}
@@ -56,17 +54,6 @@ func main() {
 	}
 	app.Run(os.Args)
 
-}
-
-//获取得文件的扩展名，最后一个.后面的内容
-func getExt(f string) (ext string) {
-	//  fmt.Println("ext:", f)
-	index := strings.LastIndex(f, ".")
-	data := []byte(f)
-	for i := index + 1; i < len(data); i++ {
-		ext = ext + string([]byte{data[i]})
-	}
-	return
 }
 func countFileLine(name string) (count int64, err error) {
 	data, err := ioutil.ReadFile(name)
