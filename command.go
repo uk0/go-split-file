@@ -3,18 +3,22 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"github.com/axgle/mahonia"
 	"io"
 	"io/ioutil"
 	"math"
 	"os"
 	"strconv"
+	"strings"
 )
-
 
 func SplitFileByLine(file string, lines int) {
 	var fileNmae = file;
 	var path = "./";
-	var suff = getExt(path + fileNmae)
+
+	var strs = strings.Split(fileNmae,".")
+	var suff = strs[1];
+	var name = strs[0];
 	//lins, err := countFileLine(path + fileNmae)
 	//if err != nil {
 	//	fmt.Println("Error")
@@ -36,21 +40,21 @@ func SplitFileByLine(file string, lines int) {
 		}
 		// 获取头部 第一次
 		if (count == 0) && (num == 0) {
-			header = string(a)
-			appendToFile(path+strconv.Itoa(num)+"_part."+suff, header);
+			header := string(a);
+			appendToFile(path+strconv.Itoa(num)+"_"+name+"_part."+suff, header);
 			count ++;
 			continue
 		}
 		// 第二次
 		if (count == 0) {
-			appendToFile(path+strconv.Itoa(num)+"_part."+suff, header);
+			appendToFile(path+strconv.Itoa(num)+"_"+name+"_part."+suff, header);
 			count ++;
 			continue
 		}
 
 		if (count < lines) {
 			// 19
-			appendToFile(path+strconv.Itoa(num)+"_part."+suff, string(a));
+			appendToFile(path+strconv.Itoa(num)+"_"+name+"_part."+suff,  string(a));
 			count ++;
 		} else {
 			num++;
@@ -76,8 +80,19 @@ func appendToFile(fileName string, content string) error {
 	return err
 }
 
-func SplitFileByBuffer(file string,chunkSize int64) {
-	var suff = getExt(file)
+func ConvertToString(src string, srcCode string, tagCode string) string {
+	srcCoder := mahonia.NewDecoder(srcCode)
+	srcResult := srcCoder.ConvertString(src)
+	tagCoder := mahonia.NewDecoder(tagCode)
+	_, cdata, _ := tagCoder.Translate([]byte(srcResult), true)
+	result := string(cdata)
+	return result
+}
+
+func SplitFileByBuffer(file string, chunkSize int64) {
+	var strs = strings.Split(file,".")
+	var suff = strs[1];
+	var name = strs[0];
 	fileInfo, err := os.Stat(file)
 	if err != nil {
 		fmt.Println(err)
@@ -102,7 +117,7 @@ func SplitFileByBuffer(file string,chunkSize int64) {
 
 		fi.Read(b)
 
-		f, err := os.OpenFile("./"+strconv.Itoa(int(i))+"_MB_part."+suff, os.O_CREATE|os.O_WRONLY, os.ModePerm)
+		f, err := os.OpenFile("./"+strconv.Itoa(int(i))+"_"+name+"_MB_part."+suff, os.O_CREATE|os.O_WRONLY, os.ModePerm)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -117,7 +132,7 @@ func SplitFileByBuffer(file string,chunkSize int64) {
 		return
 	}
 	for i := 1; i <= num; i++ {
-		f, err := os.OpenFile("./"+strconv.Itoa(int(i))+"_MB_part."+suff, os.O_RDONLY, os.ModePerm)
+		f, err := os.OpenFile("./"+strconv.Itoa(int(i))+"_"+name+"_MB_part."+suff, os.O_RDONLY, os.ModePerm)
 		if err != nil {
 			fmt.Println(err)
 			return
