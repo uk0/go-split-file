@@ -48,6 +48,10 @@ func main() {
 			SplitFileByBuffer(file, int64*bufer)
 			return nil
 		}
+		err := cli.ShowAppHelp(c)  //这个是打印app的help界面
+		if err !=nil{
+			fmt.Println("")
+		}
 		return nil
 	}
 	app.Run(os.Args)
