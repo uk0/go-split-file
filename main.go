@@ -5,8 +5,12 @@ import (
 	"github.com/urfave/cli"
 	"io/ioutil"
 	"os"
+	"runtime"
 )
 
+func init() {
+	runtime.GOMAXPROCS(runtime.NumCPU())
+}
 func main() {
 	app := cli.NewApp()
 	app.Name = "split"

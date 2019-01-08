@@ -8,7 +8,6 @@ import (
 	"io/ioutil"
 	"math"
 	"os"
-	"qiniupkg.com/x/log.v7"
 	"strconv"
 	"strings"
 )
@@ -56,8 +55,6 @@ func SplitFileByLine(file string, lines int) {
 		}
 		// 第二次
 		if (count == 0) {
-			log.Println("header : ",header)
-			log.Println("Num : ",num)
 			appendToFile(path+strconv.Itoa(num)+"_"+name+"_part"+suff, header);
 			count ++;
 			continue
@@ -65,7 +62,7 @@ func SplitFileByLine(file string, lines int) {
 
 		if (count < lines) {
 			// 19
-			go appendToFile(path+strconv.Itoa(num)+"_"+name+"_part"+suff,  string(a));
+			appendToFile(path+strconv.Itoa(num)+"_"+name+"_part"+suff,  string(a));
 			count ++;
 		} else {
 			num++;
